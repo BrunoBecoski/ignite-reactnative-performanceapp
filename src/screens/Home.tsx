@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { 
   Button,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -10,6 +9,12 @@ import {
 
 import { FriendList } from '../components/FriendList';
 
+interface Data {
+  id: string,
+  name: string,
+  likes: number
+}
+
 export function Home() {
   const [name, setName] = useState('');
   const [friends, setFriends] = useState([]);
@@ -17,7 +22,17 @@ export function Home() {
   async function handleSearch() {
     const response = await fetch(`http://192.168.1.106:3333/friends?q=${name}`);
     const data = await response.json();
-    setFriends(data);
+
+    const formattedData = data.map((item: Data) => {
+      return {
+        id: item.id,
+        name: item.name,
+        likes: item.likes,
+        online: `${new Date().getHours()}:${new Date().getMinutes()}`
+      }
+    });
+
+    setFriends(formattedData);
   }
 
   const handleUnfollow= useCallback(() => {
@@ -38,12 +53,11 @@ export function Home() {
         title="Buscar"
         onPress={handleSearch}
       />
-      <ScrollView style={styles.list}>
-        <FriendList 
-          data={friends}
-          unfollow={handleUnfollow}  
-        />
-      </ScrollView>
+      
+      <FriendList 
+        data={friends}
+        unfollow={handleUnfollow}  
+      />
     </View>
   );
 }
